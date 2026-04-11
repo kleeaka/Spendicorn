@@ -1,5 +1,6 @@
-const fs = require(“fs”);
-let c = fs.readFileSync(“src/App.jsx”, “utf8”);
-c = c.replace(/[“”]/g, String.fromCharCode(34)).replace(/[‘’]/g, String.fromCharCode(39));
-fs.writeFileSync(“src/App.jsx”, c);
-console.log(“Quotes fixed”);
+import { readFileSync, writeFileSync } from "fs";
+let c = readFileSync("src/App.jsx", "utf8");
+c = c.replace(/[\u201c\u201d]/g, String.fromCharCode(34));
+c = c.replace(/[\u2018\u2019]/g, String.fromCharCode(39));
+writeFileSync("src/App.jsx", c);
+console.log("Quotes fixed");
