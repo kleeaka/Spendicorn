@@ -1,0 +1,2 @@
+# Spendicorn
+Expense tracking app
