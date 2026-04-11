@@ -1,5 +1,5 @@
 {
-  "buildCommand": "sed -i 's/\\u201c/\"/g; s/\\u201d/\"/g; s/\\u2018/\x27/g; s/\\u2019/\x27/g' src/App.jsx && npm run build",
+  "buildCommand": "node fix-quotes.js && npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
   "installCommand": "npm install"
