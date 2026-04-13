@@ -506,20 +506,38 @@ try {
 const saved = localStorage.getItem(STORAGE_KEY);
 const parsed = saved ? JSON.parse(saved) : DEFAULT_DATA;
 const migratedCategories = (parsed.categories || DEFAULT_CATEGORIES).map(cat => {
+try {
 const allAscii = cat.icon && […cat.icon].every(c => c.charCodeAt(0) < 128);
 if (allAscii) { const def = DEFAULT_CATEGORIES.find(d => d.name === cat.name); return def ? { …cat, icon: def.icon } : cat; }
+} catch(e) {}
 return cat;
 });
 // Migrate paySchedule → paySchedules
-let paySchedules = parsed.paySchedules || [];
+let paySchedules = [];
+try {
+paySchedules = parsed.paySchedules || [];
 if (paySchedules.length === 0 && parsed.paySchedule && parsed.paySchedule.firstPayDate) {
 paySchedules = [{ id: 1, amount: parsed.paySchedule.amount || 0, frequency: parsed.paySchedule.frequency || “biweekly”, firstPayDate: parsed.paySchedule.firstPayDate, customDays: parsed.paySchedule.customDays || 14, startDate: “”, endDate: “” }];
 }
+} catch(e) { paySchedules = []; }
 // Ensure Surplus category exists
+let finalCategories = migratedCategories;
+try {
 const hasSurplus = migratedCategories.some(c => c.name === “Surplus”);
-const finalCategories = hasSurplus ? migratedCategories : […migratedCategories, SURPLUS_CAT];
-return { …DEFAULT_DATA, …parsed, categories: finalCategories, accounts: parsed.accounts || DEFAULT_ACCOUNTS, defaultAccount: parsed.defaultAccount || “Main”, paySchedule: parsed.paySchedule || DEFAULT_DATA.paySchedule, paySchedules };
-} catch (e) { return DEFAULT_DATA; }
+finalCategories = hasSurplus ? migratedCategories : […migratedCategories, SURPLUS_CAT];
+} catch(e) {}
+return { …DEFAULT_DATA, …parsed, categories: finalCategories, accounts: parsed.accounts || DEFAULT_ACCOUNTS, defaultAccount: parsed.defaultAccount || “Main”, paySchedule: parsed.paySchedule || DEFAULT_DATA.paySchedule, paySchedules, expenses: parsed.expenses || [], budgets: parsed.budgets || DEFAULT_DATA.budgets, funds: parsed.funds || [], paychecks: parsed.paychecks || [] };
+} catch (e) {
+// Last resort — try to preserve expenses at minimum
+try {
+const raw = localStorage.getItem(STORAGE_KEY);
+if (raw) {
+const p = JSON.parse(raw);
+return { …DEFAULT_DATA, expenses: p.expenses || [], categories: p.categories || DEFAULT_CATEGORIES, accounts: p.accounts || DEFAULT_ACCOUNTS, defaultAccount: p.defaultAccount || “Main”, budgets: p.budgets || DEFAULT_DATA.budgets, paySchedules: [], paySchedule: p.paySchedule || DEFAULT_DATA.paySchedule, funds: p.funds || [], paychecks: p.paychecks || [] };
+}
+} catch(e2) {}
+return DEFAULT_DATA;
+}
 });
 
 const [view, setView] = useState(“dashboard”);
