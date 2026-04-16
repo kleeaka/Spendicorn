@@ -788,10 +788,10 @@ const reader = new FileReader();
 reader.onload = e => {
 try {
 const text = e.target.result;
-const lines = text.split(/\r?\n/).filter(l => l.trim());
+const lines = text.split(”\n”).map(l => l.endsWith(”\r”) ? l.slice(0,-1) : l).filter(l => l.trim());
 if (lines.length < 2) { setToast(“CSV appears empty”); return; }
 // Parse headers
-const headers = lines[0].split(”,”).map(h => h.replace(/^”|”$/g,””).trim().toLowerCase());
+const headers = lines[0].split(”,”).map(h => { let v = h.trim(); if (v.startsWith(String.fromCharCode(34))) v = v.slice(1); if (v.endsWith(String.fromCharCode(34))) v = v.slice(0,-1); return v.trim().toLowerCase(); });
 const rows = lines.slice(1).map(line => {
 const cols = [];
 let inQuote = false, cur = “”;
@@ -803,7 +803,7 @@ else cur += ch;
 }
 cols.push(cur);
 const row = {};
-headers.forEach((h, i) => { row[h] = (cols[i] || “”).replace(/^”|”$/g,””).trim(); });
+headers.forEach((h, i) => { let v = (cols[i] || “”).trim(); if (v.startsWith(String.fromCharCode(34))) v = v.slice(1); if (v.endsWith(String.fromCharCode(34))) v = v.slice(0,-1); row[h] = v.trim(); });
 return row;
 }).filter(r => r.date || r.amount);
 
