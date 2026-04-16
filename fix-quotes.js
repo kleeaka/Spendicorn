@@ -1,4 +1,3 @@
-// v2
 import { readFileSync, writeFileSync } from "fs";
 let c = readFileSync("src/App.jsx", "utf8");
 c = c.replace(/[\u201c\u201d]/g, String.fromCharCode(34));
