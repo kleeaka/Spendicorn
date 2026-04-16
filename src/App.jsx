@@ -770,14 +770,16 @@ return parseFloat(cleaned) || 0;
 function parseCSVDate(val) {
 if (!val) return today();
 const s = String(val).trim();
-// MM/DD/YY or MM/DD/YYYY
-const mdyMatch = s.match(/^(\d{1,2})/(\d{1,2})/(\d{2,4})$/);
-if (mdyMatch) {
-const yr = mdyMatch[3].length === 2 ? “20” + mdyMatch[3] : mdyMatch[3];
-return yr + “-” + mdyMatch[1].padStart(2,“0”) + “-” + mdyMatch[2].padStart(2,“0”);
+// YYYY-MM-DD check
+if (s.length === 10 && s[4] === “-” && s[7] === “-”) return s;
+// MM/DD/YY or MM/DD/YYYY — split on slash
+const parts = s.split(”/”);
+if (parts.length === 3) {
+const m = parts[0].padStart(2, “0”);
+const d = parts[1].padStart(2, “0”);
+const yr = parts[2].length === 2 ? “20” + parts[2] : parts[2];
+return yr + “-” + m + “-” + d;
 }
-// YYYY-MM-DD
-if (s.match(/^\d{4}-\d{2}-\d{2}$/)) return s;
 return today();
 }
 
