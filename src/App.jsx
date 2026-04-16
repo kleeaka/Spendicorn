@@ -837,8 +837,6 @@ return row;
   } catch(err) { setToast("Error reading CSV: " + err.message); }
 };
 reader.readAsText(file);
-```
-
 }
 
 function proceedToDupeCheck(parsed, catMap) {
